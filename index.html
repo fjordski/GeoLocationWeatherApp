@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+
+<div id="city" class="center"></div>
+
+<div id="day" class="center"></div>
+
+<div id="image" class="center"></div>
+
+<div id="statement" class="center">
+    <img src="">
+</div>
+
+<div id="message"></div>
+
+
+<script>
+
+    //display city weather info
+
+    var x = document.getElementById("message");
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            x.innerHTML = "Geolocation is not supported by this browser.";
+        }
+    }
+
+    var array = [];
+    var arrayTwo = [];
+    navigator.geolocation.getCurrentPosition(function (position) {
+        var lat = position.coords.latitude;
+        var lon = position.coords.longitude;
+        array.push(lat, lon);
+        locationCode();
+    });
+
+    //get city and state name from geolocation longitude and latitude coordinates
+    function locationCode() {
+
+        var myURLtoo = 'https://api.wunderground.com/api/3f883e673417b8d7/geolookup/q/' + array[0] + ',' + array[1] + '.json';
+
+        $.getJSON(myURLtoo, function (data) {
+
+            arrayTwo.push(data.location.city, data.location.state);
+            cityForecast();
+
+        });
+    }
+
+    //look up more precise data via direct city forecast
+    function cityForecast() {
+        var myURL = 'https://api.wunderground.com/api/3f883e673417b8d7/forecast/q/' + arrayTwo[1] + '/' + arrayTwo[0] + '.json';
+
+        $.getJSON(myURL, function (data) {
+
+            $('#city').html(arrayTwo[0] + ',' + arrayTwo[1]);
+            $('#day').html(data.forecast.txt_forecast.forecastday[0].title);
+            $('#image').html('<img src=' + data.forecast.txt_forecast.forecastday[0].icon_url + '>');
+            $('#statement').html(data.forecast.txt_forecast.forecastday[0].fcttext);
+
+        });
+    }
+
+
+</script>
+
+</body>
+</html>
